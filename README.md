@@ -124,7 +124,7 @@ curl http://localhost:8080/api/users/1
                                  │
                     ┌─────────────▼───────────────┐
                     │     Laravel Service         │
-                    │     Port: 8080 (Main API)  │
+                    │     Port: 8080 (Main API)   │
                     │     Auto Migration          │
                     └─────────────┬───────────────┘
                                   │

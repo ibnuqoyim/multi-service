@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  go-service:
+    build: .
+    container_name: go-service
+    environment:
+      - PORT=${PORT}
+      - PHP_API_URL=${PHP_API_URL}
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    driver: bridge

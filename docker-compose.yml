@@ -1,0 +1,105 @@
+services:
+  # Database Service
+  db:
+    image: mysql:8
+    container_name: php-api-db
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: users_db
+    volumes:
+      - ./php-api/db.sql:/docker-entrypoint-initdb.d/db.sql
+      - php_api_db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - assignment-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # PHP API Service
+  php-api:
+    build: ./php-api
+    container_name: php-api-service
+    environment:
+      - DB_HOST=db
+      - DB_NAME=users_db
+      - DB_USER=root
+      - DB_PASS=example
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - assignment-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/users"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Go Service
+  go-service:
+    build: ./go-service
+    container_name: go-service-app
+    environment:
+      - PORT=8081
+      - PHP_API_URL=http://php-api-service:80
+    ports:
+      - "8081:8081"
+    depends_on:
+      php-api:
+        condition: service_healthy
+    networks:
+      - assignment-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Python Service
+  python-service:
+    build: ./python-service
+    container_name: python-service-app
+    environment:
+      - PORT=8082
+      - PHP_API_URL=http://php-api-service:80/users
+      - GO_SERVICE_URL=http://go-service-app:8081/ping
+    ports:
+      - "8082:8082"
+    depends_on:
+      php-api:
+        condition: service_healthy
+      go-service:
+        condition: service_healthy
+    networks:
+      - assignment-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/hello"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Service
+  frontend:
+    build: ./frontend
+    container_name: frontend-app
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    ports:
+      - "4135:4135"
+    depends_on:
+      php-api:
+        condition: service_healthy
+    networks:
+      - assignment-network
+
+volumes:
+  php_api_db_data:
+
+networks:
+  assignment-network:
+    driver: bridge

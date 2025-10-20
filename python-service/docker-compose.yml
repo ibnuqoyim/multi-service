@@ -1,0 +1,16 @@
+services:
+  python-service:
+    build: .
+    container_name: python-service
+    environment:
+      - PORT=${PORT}
+      - PHP_API_URL=${PHP_API_URL}
+      - GO_SERVICE_URL=${GO_SERVICE_URL}
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    driver: bridge

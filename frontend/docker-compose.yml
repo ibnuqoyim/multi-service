@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build: .
+    container_name: frontend-app
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    ports:
+      - "4135:4135"
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    driver: bridge

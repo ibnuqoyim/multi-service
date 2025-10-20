@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mysql:8
+    container_name: php-api-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+      - php_api_db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - shared-network
+
+  php-api:
+    build: .
+    container_name: php-api-service
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+    ports:
+      - "${PORT}:80"
+    depends_on:
+      - db
+    networks:
+      - shared-network
+
+volumes:
+  php_api_db_data:
+
+networks:
+  shared-network:
+    driver: bridge

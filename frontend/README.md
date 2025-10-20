@@ -15,7 +15,7 @@ A React-based frontend application with Tailwind CSS styling for user registrati
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `VITE_API_URL` | URL to PHP API service | `http://localhost:8080` | No |
+| `VITE_API_URL` | URL to Laravel API service | `http://localhost:8080` | No |
 
 ## Quick Start
 

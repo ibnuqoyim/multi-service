@@ -6,7 +6,7 @@ A Flask-based service with clean architecture using Config dataclass and proper 
 
 - **Config Object**: All configuration stored in dataclass
 - **Environment Loading**: Uses python-dotenv to load .env files
-- **Service Orchestration**: Calls PHP API and Go service
+- **Service Orchestration**: Calls Laravel API and Go service
 - **Error Handling**: Comprehensive error handling with logging
 - **Health Check**: Multiple endpoints for monitoring
 - **Clean Architecture**: Separation of concerns with factory pattern
@@ -16,7 +16,7 @@ A Flask-based service with clean architecture using Config dataclass and proper 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `PORT` | Port number for the service | `8082` | No |
-| `PHP_API_URL` | URL to PHP API service | `http://php-api:8080/users` | No |
+| `LARAVEL_API_URL` | URL to Laravel API service | `http://laravel-service:80/api/users` | No |
 | `GO_SERVICE_URL` | URL to Go service | `http://go-service:8081/ping` | No |
 
 ## Quick Start
@@ -65,9 +65,9 @@ Calls other services and returns their responses with error handling.
 **Response (200):**
 ```json
 {
-  "php_api": {
+  "laravel_api": {
     "status_code": 200,
-    "response": "response from PHP API"
+    "response": "response from Laravel API"
   },
   "go_service": {
     "status_code": 200,
@@ -84,7 +84,7 @@ Get current configuration (for debugging).
 ```json
 {
   "port": 8082,
-  "php_api_url": "http://localhost:8080/users",
+  "laravel_api_url": "http://localhost:8080/users",
   "go_service_url": "http://localhost:8081/ping"
 }
 ```
@@ -96,7 +96,7 @@ Get current configuration (for debugging).
 class Config:
     """Configuration class to hold all application settings"""
     port: int
-    php_api_url: str
+    laravel_api_url: str
     go_service_url: str
 
 def load_config() -> Config:

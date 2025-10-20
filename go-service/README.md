@@ -1,12 +1,12 @@
 # Go Service
 
-Simple Go service that proxies requests to PHP API.
+Simple Go service that proxies requests to Laravel API.
 
 ## Arsitektur
 
 - **Config Struct**: All configuration is stored in the `Config` struct
 - **Dependency Injection**: Handler functions receive config as a parameter
-- **Separation of Concerns**: Logic forwarding to PHP API is separated into its own function
+- **Separation of Concerns**: Logic forwarding to Laravel API is separated into its own function
 - **godotenv**: Uses the godotenv library to read the .env file
 
 ## Setup
@@ -19,7 +19,7 @@ Simple Go service that proxies requests to PHP API.
 2. **Edit file .env sesuai kebutuhan:**
    ```bash
    PORT=8081
-   PHP_API_URL=http://localhost:8080
+   LARAVEL_API_URL=http://laravel-service:80/api/users
    ```
 
 ## Menjalankan Aplikasi
@@ -35,7 +35,7 @@ docker-compose up --build
 The application will automatically read the `.env` file at startup. The variables used are:
 
 - `PORT` - Port for Go service (default: 8081)
-- `PHP_API_URL` - URL to PHP API (example: http://localhost:8080)
+- `LARAVEL_API_URL` - URL to Laravel API (example: http://laravel-service:80/api/users)
 
 ## API Endpoints
 
@@ -44,7 +44,7 @@ The application will automatically read the `.env` file at startup. The variable
   {"message": "pong from Go service"}
   ```
 
-- **POST /users** - Proxy to PHP API to create user
+- **POST /users** - Proxy to Laravel API to create user
   ```json
   {
     "name": "John Doe",
@@ -55,6 +55,6 @@ The application will automatically read the `.env` file at startup. The variable
 ## Troubleshooting
 
 1. **Config not read**: Run `go mod tidy` first
-2. **Cannot connect to PHP API**: Make sure PHP API is running at the correct URL
+2. **Cannot connect to Laravel API**: Make sure Laravel API is running at the correct URL
 3. **Port already in use**: Change PORT in the `.env` file
 4. **Import error**: Make sure `go.mod` and `go.sum` exist and are valid

@@ -2,13 +2,12 @@ services:
   # Database Service
   db:
     image: mysql:8
-    container_name: php-api-db
+    container_name: laravel-db
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: users_db
     volumes:
-      - ./php-api/db.sql:/docker-entrypoint-initdb.d/db.sql
-      - php_api_db_data:/var/lib/mysql
+      - laravel_db_data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
@@ -18,39 +17,17 @@ services:
       timeout: 20s
       retries: 10
 
-  # PHP API Service
-  php-api:
-    build: ./php-api
-    container_name: php-api-service
-    environment:
-      - DB_HOST=db
-      - DB_NAME=users_db
-      - DB_USER=root
-      - DB_PASS=example
-    ports:
-      - "8080:80"
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - assignment-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/users"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # Go Service
   go-service:
     build: ./go-service
     container_name: go-service-app
     environment:
       - PORT=8081
-      - PHP_API_URL=http://php-api-service:80
+      - LARAVEL_API_URL=http://laravel-service:80/api/users
     ports:
       - "8081:8081"
     depends_on:
-      php-api:
+      laravel-svc:
         condition: service_healthy
     networks:
       - assignment-network
@@ -66,12 +43,12 @@ services:
     container_name: python-service-app
     environment:
       - PORT=8082
-      - PHP_API_URL=http://php-api-service:80/users
+      - LARAVEL_API_URL=http://laravel-service:80/api/users
       - GO_SERVICE_URL=http://go-service-app:8081/ping
     ports:
       - "8082:8082"
     depends_on:
-      php-api:
+      laravel-svc:
         condition: service_healthy
       go-service:
         condition: service_healthy
@@ -79,6 +56,32 @@ services:
       - assignment-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/hello"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Laravel API Service (Main API)
+  laravel-svc:
+    build: ./laravel-svc
+    container_name: laravel-service
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=db
+      - DB_DATABASE=users_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=example
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - assignment-network
+    volumes:
+      - ./laravel-svc/storage:/var/www/html/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -92,13 +95,13 @@ services:
     ports:
       - "4135:4135"
     depends_on:
-      php-api:
+      laravel-svc:
         condition: service_healthy
     networks:
       - assignment-network
 
 volumes:
-  php_api_db_data:
+  laravel_db_data:
 
 networks:
   assignment-network:

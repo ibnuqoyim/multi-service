@@ -14,7 +14,7 @@ export default function App() {
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL;
-      const res = await fetch(`${apiUrl}/users`, {
+      const res = await fetch(`${apiUrl}/api/users`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(form)
@@ -23,10 +23,16 @@ export default function App() {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong');
+        // Handle Laravel validation errors
+        if (data.errors) {
+          const errorMessages = Object.values(data.errors).flat().join(', ');
+          throw new Error(errorMessages);
+        }
+        throw new Error(data.message || data.error || 'Something went wrong');
       }
       
-      setUser(data);
+      // Laravel returns data in data property
+      setUser(data.data || data);
       setForm({ name: '', email: '' });
     } catch (err) {
       setError(err.message);

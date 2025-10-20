@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 class Config:
     """Configuration class to hold all application settings"""
     port: int
-    php_api_url: str
+    laravel_api_url: str
     go_service_url: str
     
     def __post_init__(self):
         """Log configuration after initialization"""
         logger.info("Configuration loaded:")
         logger.info(f"  PORT: {self.port}")
-        logger.info(f"  PHP_API_URL: {self.php_api_url}")
+        logger.info(f"  LARAVEL_API_URL: {self.laravel_api_url}")
         logger.info(f"  GO_SERVICE_URL: {self.go_service_url}")
 
 def load_config() -> Config:
@@ -35,30 +35,30 @@ def load_config() -> Config:
     
     # Create config object with environment variables and defaults
     config = Config(
-        port=int(os.getenv("PORT", "8085")),
-        php_api_url=os.getenv("PHP_API_URL", "http://localhost:8089/users"),
-        go_service_url=os.getenv("GO_SERVICE_URL", "http://localhost:8088/ping")
+        port=int(os.getenv("PORT", "8082")),
+        laravel_api_url=os.getenv("LARAVEL_API_URL", "http://localhost:8080/api/users"),
+        go_service_url=os.getenv("GO_SERVICE_URL", "http://localhost:8081/ping")
     )
     
     return config
 
 def call_services():
-    """Call both PHP API and Go service"""
+    """Call both Laravel API and Go service"""
     config = app.config['APP_CONFIG']
     
-    logger.info(f"Calling PHP API: {config.php_api_url}")
+    logger.info(f"Calling Laravel API: {config.laravel_api_url}")
     logger.info(f"Calling Go service: {config.go_service_url}")
     
     try:
-        # Call PHP API
-        php_response = requests.get(config.php_api_url, timeout=10)
-        php_data = {
-            "status_code": php_response.status_code,
-            "response": php_response.json()
+        # Call Laravel API
+        laravel_response = requests.get(config.laravel_api_url, timeout=10)
+        laravel_data = {
+            "status_code": laravel_response.status_code,
+            "response": laravel_response.json()
         }
     except requests.RequestException as e:
-        logger.error(f"Error calling PHP API: {e}")
-        php_data = {
+        logger.error(f"Error calling Laravel API: {e}")
+        laravel_data = {
             "status_code": 500,
             "error": str(e)
         }
@@ -77,9 +77,9 @@ def call_services():
             "error": str(e)
         }
     
-    logger.info("Response from PHP API and Go service:")
+    logger.info("Response from Laravel API and Go service:")
     logger.info(json.dumps({
-        "php_api": php_data,
+        "laravel_api": laravel_data,
         "go_service": go_data,
         "timestamp": requests.utils.default_headers()['User-Agent']
     }))
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     
     logger.info(f"Python service starting on port {config.port}")
 
-    # call php api and go service
+    # call laravel api and go service
     call_services()
     
     # Run the application

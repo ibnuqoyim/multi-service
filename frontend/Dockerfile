@@ -11,6 +11,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Copy environment file if .env doesn't exist
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
+
 # Build the application
 RUN npm run build
 

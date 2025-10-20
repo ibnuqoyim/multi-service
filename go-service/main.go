@@ -12,8 +12,8 @@ import (
 )
 
 type Config struct {
-	Port      string
-	PHPApiURL string
+	Port          string
+	LaravelApiURL string
 }
 
 // loadConfig loads configuration from environment variables
@@ -26,14 +26,14 @@ func loadConfig() (*Config, error) {
 	}
 
 	config := &Config{
-		Port:      getEnvWithDefault("PORT", "8081"),
-		PHPApiURL: getEnvWithDefault("PHP_API_URL", "http://localhost:8080"),
+		Port:          getEnvWithDefault("PORT", "8081"),
+		LaravelApiURL: getEnvWithDefault("LARAVEL_API_URL", "http://localhost:8080/api/users"),
 	}
 
 	// Log loaded configuration
 	log.Printf("Configuration loaded:")
 	log.Printf("  PORT: %s", config.Port)
-	log.Printf("  PHP_API_URL: %s", config.PHPApiURL)
+	log.Printf("  LARAVEL_API_URL: %s", config.LaravelApiURL)
 
 	return config, nil
 }
@@ -78,20 +78,19 @@ func createUserHandler(config *Config) http.HandlerFunc {
 			return
 		}
 
-		// Forward request to PHP API
-		if err := forwardToPHPAPI(config.PHPApiURL, reqBody, w); err != nil {
-			log.Printf("Error forwarding to PHP API: %v", err)
+		// Forward request to Laravel API
+		if err := forwardToLaravelAPI(config.LaravelApiURL, reqBody, w); err != nil {
+			log.Printf("Error forwarding to Laravel API: %v", err)
 		}
 	}
 }
 
-// forwardToPHPAPI forwards the request to PHP API
-func forwardToPHPAPI(phpApiURL string, reqBody []byte, w http.ResponseWriter) error {
-	fullURL := phpApiURL + "/users"
-	log.Printf("Forwarding request to: %s", fullURL)
+// forwardToLaravelAPI forwards the request to Laravel API
+func forwardToLaravelAPI(laravelApiURL string, reqBody []byte, w http.ResponseWriter) error {
+	log.Printf("Forwarding request to: %s", laravelApiURL)
 
-	// Create request to PHP API
-	req, err := http.NewRequest("POST", fullURL, bytes.NewBuffer(reqBody))
+	// Create request to Laravel API
+	req, err := http.NewRequest("POST", laravelApiURL, bytes.NewBuffer(reqBody))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create request"})
@@ -100,12 +99,12 @@ func forwardToPHPAPI(phpApiURL string, reqBody []byte, w http.ResponseWriter) er
 
 	req.Header.Set("Content-Type", "application/json")
 
-	// Make request to PHP API
+	// Make request to Laravel API
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to connect to PHP API"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to connect to Laravel API"})
 		return err
 	}
 	defer resp.Body.Close()
@@ -118,8 +117,8 @@ func forwardToPHPAPI(phpApiURL string, reqBody []byte, w http.ResponseWriter) er
 		return err
 	}
 
-	log.Printf("PHP API response status: %d", resp.StatusCode)
-	log.Printf("PHP API response body: %s", string(body))
+	log.Printf("Laravel API response status: %d", resp.StatusCode)
+	log.Printf("Laravel API response body: %s", string(body))
 
 	w.WriteHeader(resp.StatusCode)
 	w.Write(body)

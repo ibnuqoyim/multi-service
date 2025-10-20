@@ -4,12 +4,12 @@ services:
     image: mysql:8
     container_name: laravel-db
     environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: users_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-example}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-users_db}
     volumes:
       - laravel_db_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     networks:
       - assignment-network
     healthcheck:
@@ -22,17 +22,17 @@ services:
     build: ./go-service
     container_name: go-service-app
     environment:
-      - PORT=8081
-      - LARAVEL_API_URL=http://laravel-service:80/api/users
+      - PORT=${GO_SERVICE_PORT:-8081}
+      - LARAVEL_API_URL=${LARAVEL_API_URL:-http://laravel-service:80/api/users}
     ports:
-      - "8081:8081"
+      - "${GO_SERVICE_PORT:-8081}:${GO_SERVICE_PORT:-8081}"
     depends_on:
       laravel-svc:
         condition: service_healthy
     networks:
       - assignment-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/ping"]
+      test: ["CMD", "curl", "-f", "http://localhost:${GO_SERVICE_PORT:-8081}/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -42,11 +42,11 @@ services:
     build: ./python-service
     container_name: python-service-app
     environment:
-      - PORT=8082
-      - LARAVEL_API_URL=http://laravel-service:80/api/users
-      - GO_SERVICE_URL=http://go-service-app:8081/ping
+      - PORT=${PYTHON_SERVICE_PORT:-8082}
+      - LARAVEL_API_URL=${LARAVEL_API_URL:-http://laravel-service:80/api/users}
+      - GO_SERVICE_URL=${GO_SERVICE_URL:-http://go-service-app:8081/ping}
     ports:
-      - "8082:8082"
+      - "${PYTHON_SERVICE_PORT:-8082}:${PYTHON_SERVICE_PORT:-8082}"
     depends_on:
       laravel-svc:
         condition: service_healthy
@@ -55,7 +55,7 @@ services:
     networks:
       - assignment-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/hello"]
+      test: ["CMD", "curl", "-f", "http://localhost:${PYTHON_SERVICE_PORT:-8082}/hello"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -67,12 +67,12 @@ services:
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
-      - DB_HOST=db
-      - DB_DATABASE=users_db
-      - DB_USERNAME=root
-      - DB_PASSWORD=example
+      - DB_HOST=${MYSQL_HOST:-db}
+      - DB_DATABASE=${MYSQL_DATABASE:-users_db}
+      - DB_USERNAME=${MYSQL_USER:-root}
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD:-example}
     ports:
-      - "8080:80"
+      - "${LARAVEL_PORT:-8080}:80"
     depends_on:
       db:
         condition: service_healthy
@@ -91,9 +91,9 @@ services:
     build: ./frontend
     container_name: frontend-app
     environment:
-      - VITE_API_URL=http://localhost:8080
+      - VITE_API_URL=${LARAVEL_EXTERNAL_URL:-http://localhost:8080}
     ports:
-      - "4135:4135"
+      - "${FRONTEND_PORT:-4135}:4135"
     depends_on:
       laravel-svc:
         condition: service_healthy

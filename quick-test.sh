@@ -29,11 +29,17 @@ check_service() {
     fi
 }
 
+# Load environment variables or use defaults
+LARAVEL_PORT="${LARAVEL_PORT:-8080}"
+GO_PORT="${GO_SERVICE_PORT:-8081}"
+PYTHON_PORT="${PYTHON_SERVICE_PORT:-8082}"
+FRONTEND_PORT="${FRONTEND_PORT:-4135}"
+
 # Check all services
-check_service "Laravel API" "http://localhost:8080/api/health" "ok"
-check_service "Go Service" "http://localhost:8081/ping" "pong"
-check_service "Python Service" "http://localhost:8082/hello" "Hello"
-check_service "Frontend" "http://localhost:4135/" "doctype"
+check_service "Laravel API" "http://localhost:${LARAVEL_PORT}/api/health" "ok"
+check_service "Go Service" "http://localhost:${GO_PORT}/ping" "pong"
+check_service "Python Service" "http://localhost:${PYTHON_PORT}/hello" "Hello"
+check_service "Frontend" "http://localhost:${FRONTEND_PORT}/" "doctype"
 
 echo -e "\n${BLUE}🐳 Docker Container Status:${NC}"
 docker-compose ps
@@ -41,7 +47,7 @@ docker-compose ps
 echo -e "\n${BLUE}📊 Quick API Test:${NC}"
 echo "Creating a test user..."
 TIMESTAMP=$(date +"%d%m%y%H%M%S")
-result=$(curl -s -X POST http://localhost:8080/api/users \
+result=$(curl -s -X POST http://localhost:${LARAVEL_PORT}/api/users \
     -H "Content-Type: application/json" \
     -d "{\"name\": \"Quick Test\", \"email\": \"quick${TIMESTAMP}@test.com\"}" 2>/dev/null)
 

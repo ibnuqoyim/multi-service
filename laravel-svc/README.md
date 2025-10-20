@@ -46,15 +46,15 @@ docker exec laravel-service php artisan migrate --force
 
 ### 2. Service URLs
 
-- **API Base URL:** http://localhost:8083
-- **Health Check:** http://localhost:8083/api/health
+- **API Base URL:** http://localhost:8080
+- **Health Check:** http://localhost:8080/api/health
 - **Database:** localhost:3306 (MySQL 8)
 
 ## 📚 API Documentation
 
 ### Base URL
 ```
-http://localhost:8083/api
+http://localhost:8080/api
 ```
 
 ### Endpoints
@@ -206,18 +206,18 @@ CREATE TABLE simple_users (
 
 ```bash
 # Create a user
-curl -X POST http://localhost:8083/api/users \
+curl -X POST http://localhost:8080/api/users \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com"}'
 
 # Get all users
-curl http://localhost:8083/api/users
+curl http://localhost:8080/api/users
 
 # Get specific user
-curl http://localhost:8083/api/users/1
+curl http://localhost:8080/api/users/1
 
 # Health check
-curl http://localhost:8083/api/health
+curl http://localhost:8080/api/health
 ```
 
 ## 🐳 Docker Configuration
@@ -232,7 +232,7 @@ curl http://localhost:8083/api/health
 ### Docker Compose Integration
 - **Service Name:** laravel-svc
 - **Container Name:** laravel-service
-- **Port:** 8083:80
+- **Port:** 8080:80
 - **Dependencies:** MySQL database with health checks
 - **Networks:** assignment-network (shared with other services)
 

@@ -10,6 +10,14 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}🚀 Deploying Microservices Application${NC}"
 echo "=================================================="
 
+# Step 0: Setup environment files
+echo -e "\n${YELLOW}🔧 Setting up environment files...${NC}"
+if [ -f "setup-env.sh" ]; then
+    ./setup-env.sh
+else
+    echo -e "${YELLOW}⚠️  setup-env.sh not found, skipping environment setup${NC}"
+fi
+
 # Step 1: Clean up existing containers
 echo -e "\n${YELLOW}🧹 Cleaning up existing containers...${NC}"
 docker-compose down --volumes --remove-orphans
@@ -55,13 +63,21 @@ sleep 10
 echo -e "\n${BLUE}📊 Service Status:${NC}"
 docker-compose ps
 
+# Load environment variables or use defaults
+LARAVEL_PORT="${LARAVEL_PORT:-8080}"
+GO_PORT="${GO_SERVICE_PORT:-8081}"
+PYTHON_PORT="${PYTHON_SERVICE_PORT:-8082}"
+FRONTEND_PORT="${FRONTEND_PORT:-4135}"
+MYSQL_PORT="${MYSQL_PORT:-3306}"
+MYSQL_DATABASE="${MYSQL_DATABASE:-users_db}"
+
 # Step 6: Show service URLs
 echo -e "\n${BLUE}🌐 Service URLs:${NC}"
-echo "Laravel API:    http://localhost:8080/api/health"
-echo "Go Service:     http://localhost:8081/ping"
-echo "Python Service: http://localhost:8082/hello"
-echo "Frontend:       http://localhost:4135/"
-echo "Database:       localhost:3306 (users_db)"
+echo "Laravel API:    http://localhost:${LARAVEL_PORT}/api/health"
+echo "Go Service:     http://localhost:${GO_PORT}/ping"
+echo "Python Service: http://localhost:${PYTHON_PORT}/hello"
+echo "Frontend:       http://localhost:${FRONTEND_PORT}/"
+echo "Database:       localhost:${MYSQL_PORT} (${MYSQL_DATABASE})"
 
 # Step 7: Run tests
 echo -e "\n${YELLOW}🧪 Running endpoint tests...${NC}"

@@ -31,6 +31,25 @@ This guide explains how to deploy the complete microservices stack with automati
 - ✅ Build process (npm run build)
 - ✅ Production server (vite preview)
 
+## 🔧 Environment Configuration
+
+All services use environment variables for configuration. The system includes:
+
+- **Main .env file**: Controls all service ports and database settings
+- **Service-specific .env files**: Individual service configurations
+- **Automatic setup**: `setup-env.sh` creates all .env files from examples
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MYSQL_ROOT_PASSWORD` | `example` | Database root password |
+| `MYSQL_DATABASE` | `users_db` | Database name |
+| `LARAVEL_PORT` | `8080` | Laravel API port |
+| `GO_SERVICE_PORT` | `8081` | Go service port |
+| `PYTHON_SERVICE_PORT` | `8082` | Python service port |
+| `FRONTEND_PORT` | `4135` | Frontend port |
+
 ## 🎯 Deployment Options
 
 ### Option 1: Full Automated Deployment (Recommended)
@@ -38,14 +57,30 @@ This guide explains how to deploy the complete microservices stack with automati
 ./deploy.sh
 ```
 This script will:
+- Setup environment files automatically
 - Clean up existing containers
 - Build and start all services
 - Wait for services to be healthy
 - Run comprehensive endpoint tests
 - Show service status and URLs
 
-### Option 2: Manual Deployment
+### Option 2: Manual Environment Setup
 ```bash
+# Setup environment files
+./setup-env.sh
+
+# Customize .env files as needed
+nano .env
+
+# Deploy services
+./deploy.sh
+```
+
+### Option 3: Manual Deployment
+```bash
+# Setup environment files first
+./setup-env.sh
+
 # Build and start services
 docker-compose up -d --build
 
@@ -56,7 +91,7 @@ sleep 30
 ./test-endpoints.sh
 ```
 
-### Option 3: Quick Health Check
+### Option 4: Quick Health Check
 ```bash
 # Check if all services are running
 ./quick-test.sh

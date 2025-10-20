@@ -7,12 +7,12 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Test configuration
+# Test configuration - Load from environment or use defaults
 BASE_URL="http://localhost"
-LARAVEL_PORT="8080"
-GO_PORT="8081"
-PYTHON_PORT="8082"
-FRONTEND_PORT="4135"
+LARAVEL_PORT="${LARAVEL_PORT:-8080}"
+GO_PORT="${GO_SERVICE_PORT:-8081}"
+PYTHON_PORT="${PYTHON_SERVICE_PORT:-8082}"
+FRONTEND_PORT="${FRONTEND_PORT:-4135}"
 
 # Test counter
 TOTAL_TESTS=0

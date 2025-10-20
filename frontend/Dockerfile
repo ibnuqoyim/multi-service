@@ -17,8 +17,8 @@ RUN if [ ! -f .env ]; then cp .env.example .env; fi
 # Build the application
 RUN npm run build
 
-# Expose port
-EXPOSE 4135
+# Use environment variable for port exposure
+EXPOSE ${FRONTEND_PORT:-4135}
 
-# Start the preview server
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4135"]
+# Start the preview server with environment variable port
+CMD ["sh", "-c", "npm run preview -- --host 0.0.0.0 --port ${FRONTEND_PORT:-4135}"]

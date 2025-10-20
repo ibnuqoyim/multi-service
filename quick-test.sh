@@ -29,6 +29,11 @@ check_service() {
     fi
 }
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # Load environment variables or use defaults
 LARAVEL_PORT="${LARAVEL_PORT:-8080}"
 GO_PORT="${GO_SERVICE_PORT:-8081}"

@@ -2,7 +2,7 @@ services:
   # Database Service
   db:
     image: mysql:8
-    container_name: laravel-db
+    container_name: ${MYSQL_HOST:-db}
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-example}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-users_db}

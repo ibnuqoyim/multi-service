@@ -7,6 +7,11 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # Test configuration - Load from environment or use defaults
 BASE_URL="http://localhost"
 LARAVEL_PORT="${LARAVEL_PORT:-8080}"
@@ -84,7 +89,7 @@ TIMESTAMP=$(generate_timestamp)
 
 # Test 3: Laravel Create User
 test_endpoint "POST" "$BASE_URL:$LARAVEL_PORT/api/users" "201" "Laravel Create User" \
-    "{\"name\": \"John Doe\", \"email\": \"john${TIMESTAMP}@example.com\"}"
+    "{\"name\": \"John Doe\", \"email\": \"john@example.com\"}"
 
 # Test 4: Laravel Create Another User
 test_endpoint "POST" "$BASE_URL:$LARAVEL_PORT/api/users" "201" "Laravel Create Second User" \

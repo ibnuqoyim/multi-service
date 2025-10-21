@@ -44,6 +44,20 @@ for service in "${services[@]}"; do
     fi
 done
 
+# Update frontend .env with actual values from main .env
+if [ -f ".env" ] && [ -f "frontend/.env" ]; then
+    echo -e "${BLUE}🔄 Updating frontend environment variables...${NC}"
+    
+    # Load main .env variables
+    export $(grep -v '^#' .env | xargs)
+    
+    # Update frontend .env with actual values
+    sed -i.bak "s|VITE_API_URL=.*|VITE_API_URL=${LARAVEL_EXTERNAL_URL:-http://localhost:8080}|" frontend/.env
+    rm -f frontend/.env.bak
+    
+    echo -e "${GREEN}✅ Frontend .env updated with LARAVEL_EXTERNAL_URL${NC}"
+fi
+
 echo -e "\n${BLUE}📋 Environment Setup Summary:${NC}"
 echo "Main .env file: $([ -f .env ] && echo "✅ Ready" || echo "❌ Missing")"
 echo "Laravel .env:   $([ -f laravel-svc/.env ] && echo "✅ Ready" || echo "❌ Missing")"
